@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>About Events</title>
+    <meta
+      name="description"
+      content="A minimal companion site for a thesis on event-driven processes and systems, with a curated Learn More section of books, essays, papers, talks, and videos."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Libre+Baskerville:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="site-frame">
+      <aside class="sidebar" aria-label="Primary navigation">
+        <div class="sidebar-top">
+<!--           <p class="eyebrow">COMPANION PAGE</p> -->
+          <h1 class="sidebar-title">Reliability in Event-Driven Design</h1>
+          <p class="sidebar-subtitle">How Correctness Boundaries Shape Process-Handling Choices and Recovery Behaviour</p>
+          <p class="sidebar-note">
+            A quiet companion page to a thesis about event-driven processes and the conditions they must protect.
+          </p>
+        </div>
+
+        <nav class="nav-groups">
+          <section class="nav-group">
+            <button class="nav-link is-active" data-panel="thesis" aria-pressed="true">Thesis</button>
+            <button class="nav-link" data-panel="learn" aria-pressed="false">Learn More</button>
+          </section>
+        </nav>
+      </aside>
+
+      <main class="panel" id="content-panel" tabindex="-1" data-active-panel="thesis">
+        <section class="panel-view is-visible panel-view--thesis" id="panel-thesis">
+          <p class="panel-kicker">Thesis</p>
+          <h2 class="panel-title">Abstract</h2>
+
+          <article class="thesis-abstract" aria-labelledby="abstract-title">
+            <header class="abstract-header">
+              <p class="abstract-eyebrow">Reliability in Event-Driven Design</p>
+              <h3 class="abstract-title" id="abstract-title">
+                How Correctness Boundaries Shape Process-Handling Choices and Recovery Behaviour
+              </h3>
+            </header>
+
+            <div class="abstract-body">
+              <section class="abstract-item">
+                <h4>Background</h4>
+                <p>
+                  Reliability in event-driven processes is difficult to judge when what a process must protect is left
+                  implicit. Event flows may preserve, delay, replay, duplicate, or omit work, but these behaviours do
+                  not carry a fixed process-level meaning. Their significance depends on what must remain true for a
+                  case to count as acceptable. Without that prior account of correctness, the value of a handling choice
+                  becomes harder to assess.
+                </p>
+              </section>
+
+              <section class="abstract-item">
+                <h4>Objectives</h4>
+                <p>
+                  This thesis develops a boundary-first framework for reasoning about reliability in event-driven
+                  processes. The aim is to clarify how explicit correctness boundaries shape process-handling choices in
+                  systems where asynchronous event processing performs correctness-relevant work.
+                </p>
+              </section>
+
+              <section class="abstract-item">
+                <h4>Methods</h4>
+                <p>
+                  The thesis follows a design science research approach. In design-science terms, the framework is the
+                  central artifact, while the guide developed later gives that framework a more concrete form. The
+                  framework is examined through a controlled empirical suite. The suite isolates three working boundary
+                  classes: deadline-constrained, state-oriented, and required-effect. These are examined across three
+                  process-handling models: transient/immediate, retained/immediate, and retained/deferred.
+                </p>
+              </section>
+
+              <section class="abstract-item">
+                <h4>Results</h4>
+                <p>
+                  Within the controlled scenarios examined here, the results show that the value of replay, retention,
+                  immediate handling, and deferred settlement depends on the correctness boundary being protected. For a
+                  deadline-constrained condition, recovery matters only while unsettled work can still be repaid before
+                  expiry. For a state-oriented condition, replay matters when missed state remains relevant, while later
+                  state may also overtake earlier misses. For a required-effect condition, replay can recover downstream
+                  handling gaps after emission, but not source omission, and deferred settlement reduces one kind of
+                  immediate pressure by moving part of the burden into later reconciliation.
+                </p>
+              </section>
+
+              <section class="abstract-item abstract-item--conclusion">
+                <h4>Conclusions</h4>
+                <p>
+                  The thesis contributes a process-level framework for comparing handling choices under explicit
+                  correctness requirements. Its value lies in making the reasoning inspectable: what condition or set of
+                  conditions is protected, how those conditions could fail, which handling model is chosen, and what
+                  trade-off follows. The guide gives this reasoning a more concrete form, while the contribution remains
+                  the framework itself and the disciplined comparison it makes possible.
+                </p>
+              </section>
+            </div>
+          </article>
+
+          <div class="thesis-actions" aria-label="Thesis resources">
+            <a class="action-card action-card--primary" href="#" data-slot="thesis-link" target="_blank" rel="noreferrer">
+              <span>
+                <span class="action-card-label">Open thesis PDF</span>
+                <span class="action-card-meta">Full manuscript</span>
+              </span>
+              <span class="action-card-mark" aria-hidden="true">↗</span>
+            </a>
+            <a class="action-card" href="#" data-slot="repo-link" target="_blank" rel="noreferrer">
+              <span>
+                <span class="action-card-label">Repository</span>
+                <span class="action-card-meta">Link to be added</span>
+              </span>
+              <span class="action-card-mark" aria-hidden="true">soon</span>
+            </a>
+          </div>
+        </section>
+
+        <section class="panel-view panel-view--learn" id="panel-learn" hidden>
+          <h2 class="panel-title">Learn More</h2>
+          <p class="panel-subtitle">
+            Selected books, essays, papers, talks, and videos for learning more about event-driven processes and
+            systems.
+          </p>
+
+          <div class="resource-groups" id="resource-groups" aria-label="Curated learning materials"></div>
+        </section>
+      </main>
+
+      <footer class="footer-bar" aria-label="Footer">
+        <a
+          class="footer-title"
+          href="https://en.wikipedia.org/wiki/Event_(computing)"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Events? Open the Wikipedia article on events in computing"
+        >Events?</a>
+        <div class="footer-scene" aria-label="Producer to consumer event animation">
+          <div class="scene-label scene-label--producer">producer</div>
+          <div class="scene-label scene-label--consumer">consumer</div>
+          <div class="scene-track" aria-hidden="true"></div>
+
+          <div class="event-bird" id="event-bird" aria-hidden="true">
+            <span class="bird-wing bird-wing--left"></span>
+            <span class="bird-core"></span>
+            <span class="bird-wing bird-wing--right"></span>
+          </div>
+
+          <div class="fox-runner" aria-hidden="true">
+            <img
+              id="footer-fox"
+              class="footer-fox"
+              src="./assets/fox.svg"
+              alt="Animated fox"
+            />
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <script>
+      window.SITE_CONFIG = {
+        thesisLink: 'https://github.com/kh3rm/thesis-empirical-suite/blob/main/thesis_basis/thesis.pdf',
+        repoLink: 'https://github.com/kh3rm/thesis-empirical-suite/'
+      };
+    </script>
+    <script src="script.js"></script>
+  </body>
+</html>

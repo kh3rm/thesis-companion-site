@@ -1,0 +1,13 @@
+{
+  "name": "thesis-site-template",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Minimal thesis companion microsite with Express local preview and GitHub Pages-ready static files.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}
