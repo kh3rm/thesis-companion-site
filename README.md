@@ -1,12 +1,12 @@
 <p align="center">
-  <a href="thesis_basis/thesis.pdf">
-    <img src="thesis_basis/figures/thesis_title_card.svg" alt="Reliability in Event-Driven Design: How Correctness Boundaries Shape Process-Handling Choices and Recovery Behaviour" width="760">
+  <a href="https://github.com/kh3rm/thesis-empirical-suite/blob/main/thesis_basis/thesis.pdf">
+    <img src="assets/thesis_title_card.svg" alt="Reliability in Event-Driven Design: How Correctness Boundaries Shape Process-Handling Choices and Recovery Behaviour" width="760">
   </a>
 </p>
 
 The site, which this repository is the basis for, provides a compact entry point to the thesis and to selected learning material on event-driven processes, reliability, replay, retention, settlement, and related design concerns.
 
-Github pages deployed site: [TO come]
+GitHub Pages deployed site: https://kh3rm.github.io/thesis-companion-site/
 
 ## About
 

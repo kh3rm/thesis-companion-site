@@ -6,7 +6,7 @@
     <title>About Events</title>
     <meta
       name="description"
-      content="A minimal companion site for a thesis on event-driven processes and systems, with a curated Learn More section of books, essays, papers, talks, and videos."
+      content="A minimal companion site for a thesis on event-driven processes and systems, with an accompanying presentation video and curated Learn More section."
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -17,7 +17,7 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <div class="site-frame">
+    <div class="site-frame" data-active-panel="thesis" data-presentation-sleep="false" data-presentation-eye="awake" data-presentation-ended="false">
       <aside class="sidebar" aria-label="Primary navigation">
         <div class="sidebar-top">
 <!--           <p class="eyebrow">COMPANION PAGE</p> -->
@@ -31,6 +31,7 @@
         <nav class="nav-groups">
           <section class="nav-group">
             <button class="nav-link is-active" data-panel="thesis" aria-pressed="true">Thesis</button>
+            <button class="nav-link" data-panel="presentation" aria-pressed="false">Presentation</button>
             <button class="nav-link" data-panel="learn" aria-pressed="false">Learn More</button>
           </section>
         </nav>
@@ -53,55 +54,63 @@
               <section class="abstract-item">
                 <h4>Background</h4>
                 <p>
-                  Reliability in event-driven processes is difficult to judge when what a process must protect is left
-                  implicit. Event flows may preserve, delay, replay, duplicate, or omit work, but these behaviours do
-                  not carry a fixed process-level meaning. Their significance depends on what must remain true for a
-                  case to count as acceptable. Without that prior account of correctness, the value of a handling choice
-                  becomes harder to assess.
+                  Reliability in event-driven processes is difficult to judge when the
+                  conditions that make a process outcome acceptable are left implicit. Event handling
+                  may preserve, delay, replay, duplicate, or omit work, but the significance of these
+                  behaviours depends on what the process must protect. Replaying retained work may
+                  no longer protect correctness after the relevant deadline. A missed update may no
+                  longer matter. Deferred settlement may reduce duplicate harm while moving burden
+                  into reconciliation.
                 </p>
               </section>
 
               <section class="abstract-item">
                 <h4>Objectives</h4>
                 <p>
-                  This thesis develops a boundary-first framework for reasoning about reliability in event-driven
-                  processes. The aim is to clarify how explicit correctness boundaries shape process-handling choices in
-                  systems where asynchronous event processing performs correctness-relevant work.
+                  This thesis develops a boundary-first framework for reasoning about
+                  reliability in event-driven processes. The aim is to make explicit what a process must
+                  protect before judging which process-handling model is appropriate.
                 </p>
               </section>
 
               <section class="abstract-item">
                 <h4>Methods</h4>
                 <p>
-                  The thesis follows a design science research approach. In design-science terms, the framework is the
-                  central artifact, while the guide developed later gives that framework a more concrete form. The
-                  framework is examined through a controlled empirical suite. The suite isolates three working boundary
-                  classes: deadline-constrained, state-oriented, and required-effect. These are examined across three
-                  process-handling models: transient/immediate, retained/immediate, and retained/deferred.
+                  The thesis follows a design science research approach. It develops the
+                  framework and examines it through a controlled, containerised empirical suite using
+                  transient and retained event handling. The suite compares deadline-constrained,
+                  state-oriented, and required-effect scenarios across three process-handling models:
+                  transient/immediate, retained/immediate, and retained/deferred. Each scenario
+                  combines a protected condition, a handling model, and a defined disturbance, allowing
+                  selected differences in preservation, replay, recovery, and settlement to be observed.
+                  The empirical comparison is exploratory and focuses on process-handling behaviour
+                  under disturbance.
                 </p>
               </section>
 
               <section class="abstract-item">
                 <h4>Results</h4>
                 <p>
-                  Within the controlled scenarios examined here, the results show that the value of replay, retention,
-                  immediate handling, and deferred settlement depends on the correctness boundary being protected. For a
-                  deadline-constrained condition, recovery matters only while unsettled work can still be repaid before
-                  expiry. For a state-oriented condition, replay matters when missed state remains relevant, while later
-                  state may also overtake earlier misses. For a required-effect condition, replay can recover downstream
-                  handling gaps after emission, but not source omission, and deferred settlement reduces one kind of
-                  immediate pressure by moving part of the burden into later reconciliation.
+                  The comparison shows that the value of replay, retention, immediate handling, and
+                  deferred settlement depends on the protected condition at stake. For
+                  deadline-constrained work, recovery matters only while unsettled work can still be
+                  resolved before expiry. For state-oriented work, replay matters when missed state
+                  remains relevant, while later state may overtake earlier misses. For required-effect
+                  work, replay can recover downstream handling gaps after emission, but not source
+                  omission. Deferred settlement can reduce immediate duplicate pressure by moving
+                  part of the burden into later reconciliation.
                 </p>
               </section>
 
               <section class="abstract-item abstract-item--conclusion">
                 <h4>Conclusions</h4>
                 <p>
-                  The thesis contributes a process-level framework for comparing handling choices under explicit
-                  correctness requirements. Its value lies in making the reasoning inspectable: what condition or set of
-                  conditions is protected, how those conditions could fail, which handling model is chosen, and what
-                  trade-off follows. The guide gives this reasoning a more concrete form, while the contribution remains
-                  the framework itself and the disciplined comparison it makes possible.
+                  The thesis contributes a process-level framework for comparing handling choices
+                  under explicit correctness requirements. Its value lies in making the comparison
+                  inspectable: what the process must protect, what can threaten that requirement,
+                  which handling model is chosen, and what trade-off follows. The guide gives this
+                  reasoning a more concrete form, so that the design judgments behind handling
+                  choices can be understood more clearly.
                 </p>
               </section>
             </div>
@@ -110,18 +119,94 @@
           <div class="thesis-actions" aria-label="Thesis resources">
             <a class="action-card action-card--primary" href="#" data-slot="thesis-link" target="_blank" rel="noreferrer">
               <span>
-                <span class="action-card-label">Open thesis PDF</span>
+                <span class="action-card-label">PDF</span>
                 <span class="action-card-meta">Full manuscript</span>
               </span>
-              <span class="action-card-mark" aria-hidden="true">↗</span>
             </a>
             <a class="action-card" href="#" data-slot="repo-link" target="_blank" rel="noreferrer">
               <span>
-                <span class="action-card-label">Repository</span>
-                <span class="action-card-meta">Link to be added</span>
+                <span class="action-card-label">Suite Repository</span>
+                <span class="action-card-meta">Link</span>
               </span>
-              <span class="action-card-mark" aria-hidden="true">soon</span>
             </a>
+          </div>
+        </section>
+
+
+        <section class="panel-view panel-view--presentation" id="panel-presentation" hidden>
+          <p class="panel-kicker">Video</p>
+          <h2 class="panel-title">Presentation</h2>
+
+          <div class="presentation-stage" aria-label="Thesis presentation video">
+            <figure class="projector-canvas">
+              <video
+                class="presentation-video"
+                data-presentation-video
+                poster="./assets/presentation-poster.jpg"
+                preload="metadata"
+                playsinline
+                tabindex="0"
+                aria-label="Play the thesis presentation video"
+              >
+                <source src="./assets/thesis_presentation_hekr23.mp4" type="video/mp4" />
+                Your browser does not support embedded video.
+              </video>
+              <button
+                class="presentation-replay"
+                data-video-replay
+                type="button"
+                aria-label="Replay presentation video"
+                hidden
+              >
+                <span aria-hidden="true">↻</span>
+              </button>
+            </figure>
+
+            <div class="presentation-controls" aria-label="Presentation video controls">
+              <button class="presentation-toggle" data-video-toggle type="button" aria-label="Play presentation video">
+                Play
+              </button>
+              <input
+                class="presentation-progress"
+                data-video-progress
+                type="range"
+                min="0"
+                max="1000"
+                value="0"
+                step="1"
+                aria-label="Presentation progress"
+                aria-valuetext="0 minutes 0 seconds elapsed"
+              />
+            </div>
+
+            <div class="presentation-fox-wrap" aria-hidden="true">
+              <img
+                class="presentation-fox"
+                src="./assets/fox-seated.svg"
+                alt=""
+                aria-hidden="true"
+              />
+              <svg
+                class="presentation-fox-eye"
+                viewBox="0 0 100 100"
+                aria-hidden="true"
+                focusable="false"
+              >
+                <ellipse class="presentation-fox-eye-open" cx="50" cy="50" rx="20" ry="20" />
+                <rect class="presentation-fox-eye-line" x="30" y="45.5" width="40" height="9" rx="4.5" ry="4.5" />
+              </svg>
+            </div>
+            <img
+              class="presentation-sleep"
+              data-presentation-sleep
+              src="https://media.tenor.com/o9YuRUs3SfIAAAAj/zzz-sleep.gif"
+              alt=""
+              aria-hidden="true"
+              loading="lazy"
+              decoding="async"
+              referrerpolicy="no-referrer"
+              hidden
+            />
           </div>
         </section>
 
@@ -149,6 +234,8 @@
           <div class="scene-label scene-label--consumer">consumer</div>
           <div class="scene-track" aria-hidden="true"></div>
 
+          <div class="event-baseline" aria-hidden="true"></div>
+
           <div class="event-bird" id="event-bird" aria-hidden="true">
             <span class="bird-wing bird-wing--left"></span>
             <span class="bird-core"></span>
@@ -169,7 +256,7 @@
 
     <script>
       window.SITE_CONFIG = {
-        thesisLink: 'https://github.com/kh3rm/thesis-empirical-suite/blob/main/thesis_basis/thesis.pdf',
+        thesisLink: 'https://raw.githubusercontent.com/kh3rm/thesis-empirical-suite/main/thesis_basis/thesis.pdf',
         repoLink: 'https://github.com/kh3rm/thesis-empirical-suite/'
       };
     </script>

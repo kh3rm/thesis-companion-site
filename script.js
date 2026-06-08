@@ -1,9 +1,12 @@
 const navLinks = Array.from(document.querySelectorAll('.nav-link'));
 const views = Array.from(document.querySelectorAll('.panel-view'));
 const contentPanel = document.getElementById('content-panel');
+const siteFrame = document.querySelector('.site-frame');
 const resourceGroups = document.getElementById('resource-groups');
+const mobilePanelQuery = window.matchMedia('(max-width: 900px)');
+const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-function activatePanel(panelName) {
+function activatePanel(panelName, options = {}) {
   navLinks.forEach((link) => {
     const isActive = link.dataset.panel === panelName;
     link.classList.toggle('is-active', isActive);
@@ -17,11 +20,30 @@ function activatePanel(panelName) {
   });
 
   contentPanel.dataset.activePanel = panelName;
+  siteFrame.dataset.activePanel = panelName;
+
+  if (panelName === 'presentation') {
+    schedulePresentationSleepCue();
+  } else {
+    pausePresentationVideo();
+    resetPresentationSleepCue();
+  }
+
   contentPanel.focus({ preventScroll: true });
+
+  if (options.scrollToPanel && mobilePanelQuery.matches) {
+    requestAnimationFrame(() => {
+      contentPanel.scrollIntoView({
+        block: 'start',
+        behavior: reducedMotionQuery.matches ? 'auto' : 'smooth',
+      });
+    });
+  }
 }
 
 navLinks.forEach((link) => {
-  link.addEventListener('click', () => activatePanel(link.dataset.panel));
+  link.setAttribute('aria-controls', `panel-${link.dataset.panel}`);
+  link.addEventListener('click', () => activatePanel(link.dataset.panel, { scrollToPanel: true }));
 });
 
 const slotMap = {
@@ -50,6 +72,276 @@ Object.entries(slotMap).forEach(([slot, href]) => {
     }
   });
 });
+
+
+const presentationVideo = document.querySelector('[data-presentation-video]');
+const presentationToggle = document.querySelector('[data-video-toggle]');
+const presentationProgress = document.querySelector('[data-video-progress]');
+const presentationReplay = document.querySelector('[data-video-replay]');
+const presentationSleep = document.querySelector('[data-presentation-sleep]');
+let presentationSleepTimer = null;
+let presentationSleepCueTimer = null;
+let presentationEyeTimers = [];
+
+function formatElapsedTime(totalSeconds) {
+  if (!Number.isFinite(totalSeconds) || totalSeconds < 0) {
+    return '0 minutes 0 seconds elapsed';
+  }
+
+  const roundedSeconds = Math.floor(totalSeconds);
+  const minutes = Math.floor(roundedSeconds / 60);
+  const seconds = roundedSeconds % 60;
+  const minuteLabel = minutes === 1 ? 'minute' : 'minutes';
+  const secondLabel = seconds === 1 ? 'second' : 'seconds';
+
+  return `${minutes} ${minuteLabel} ${seconds} ${secondLabel} elapsed`;
+}
+
+function updatePresentationProgress() {
+  if (!presentationVideo || !presentationProgress) {
+    return;
+  }
+
+  const duration = presentationVideo.duration;
+  const currentTime = presentationVideo.currentTime;
+  const hasDuration = Number.isFinite(duration) && duration > 0;
+  const progress = hasDuration ? Math.min(currentTime / duration, 1) : 0;
+  const progressValue = Math.round(progress * Number(presentationProgress.max));
+
+  presentationProgress.value = String(progressValue);
+  presentationProgress.style.setProperty('--progress', `${progress * 100}%`);
+  presentationProgress.setAttribute('aria-valuenow', String(progressValue));
+  presentationProgress.setAttribute('aria-valuetext', formatElapsedTime(currentTime));
+}
+
+function updatePresentationToggle() {
+  if (!presentationVideo || !presentationToggle) {
+    return;
+  }
+
+  const isPlaying = !presentationVideo.paused && !presentationVideo.ended;
+  const isEnded = presentationVideo.ended;
+  const label = isEnded
+    ? 'Replay presentation video'
+    : isPlaying
+      ? 'Pause presentation video'
+      : 'Play presentation video';
+
+  presentationToggle.textContent = isEnded ? 'Replay' : isPlaying ? 'Pause' : 'Play';
+  presentationToggle.setAttribute('aria-label', label);
+  presentationVideo.setAttribute('aria-label', label);
+}
+
+function setPresentationEnded(isEnded) {
+  if (siteFrame) {
+    siteFrame.dataset.presentationEnded = String(isEnded);
+  }
+
+  if (presentationReplay) {
+    presentationReplay.hidden = !isEnded;
+  }
+}
+
+function pausePresentationVideo() {
+  if (presentationVideo && !presentationVideo.paused) {
+    presentationVideo.pause();
+  }
+}
+
+function clearPresentationEyeTimers() {
+  presentationEyeTimers.forEach((timerId) => {
+    window.clearTimeout(timerId);
+  });
+  presentationEyeTimers = [];
+}
+
+function setPresentationEyeState(state) {
+  if (siteFrame) {
+    siteFrame.dataset.presentationEye = state;
+  }
+}
+
+function queuePresentationBlink(delay) {
+  const blinkTimer = window.setTimeout(() => {
+    if (siteFrame?.dataset.activePanel !== 'presentation') {
+      return;
+    }
+
+    const currentEyeState = siteFrame?.dataset.presentationEye;
+
+    if (currentEyeState === 'drooping' || currentEyeState === 'sleeping') {
+      return;
+    }
+
+    setPresentationEyeState('blink');
+
+    const reopenTimer = window.setTimeout(() => {
+      if (siteFrame?.dataset.activePanel !== 'presentation') {
+        return;
+      }
+
+      if (siteFrame?.dataset.presentationEye === 'blink') {
+        setPresentationEyeState('awake');
+      }
+    }, 130);
+
+    presentationEyeTimers.push(reopenTimer);
+  }, delay);
+
+  presentationEyeTimers.push(blinkTimer);
+}
+
+function resetPresentationSleepCue() {
+  if (presentationSleepTimer) {
+    window.clearTimeout(presentationSleepTimer);
+    presentationSleepTimer = null;
+  }
+
+  if (presentationSleepCueTimer) {
+    window.clearTimeout(presentationSleepCueTimer);
+    presentationSleepCueTimer = null;
+  }
+
+  clearPresentationEyeTimers();
+
+  if (siteFrame) {
+    siteFrame.dataset.presentationSleep = 'false';
+    siteFrame.dataset.presentationEye = 'awake';
+  }
+
+  if (presentationSleep) {
+    presentationSleep.hidden = true;
+  }
+}
+
+function schedulePresentationSleepCue() {
+  resetPresentationSleepCue();
+
+  if (!presentationSleep || !siteFrame) {
+    return;
+  }
+
+  presentationSleep.hidden = false;
+  setPresentationEyeState('awake');
+
+  queuePresentationBlink(6000);
+  queuePresentationBlink(10000);
+  queuePresentationBlink(11000);
+  queuePresentationBlink(14500);
+
+  const droopingTimer = window.setTimeout(() => {
+    if (siteFrame.dataset.activePanel !== 'presentation') {
+      return;
+    }
+
+    setPresentationEyeState('drooping');
+  }, 17000);
+
+  presentationEyeTimers.push(droopingTimer);
+
+  presentationSleepTimer = window.setTimeout(() => {
+    if (siteFrame.dataset.activePanel !== 'presentation') {
+      return;
+    }
+
+    setPresentationEyeState('sleeping');
+    presentationSleepTimer = null;
+  }, 18700);
+
+  presentationSleepCueTimer = window.setTimeout(() => {
+    if (siteFrame.dataset.activePanel !== 'presentation') {
+      return;
+    }
+
+    siteFrame.dataset.presentationSleep = 'true';
+    presentationSleepCueTimer = null;
+  }, 20000);
+}
+
+function replayPresentationVideo() {
+  if (!presentationVideo) {
+    return;
+  }
+
+  setPresentationEnded(false);
+  presentationVideo.currentTime = 0;
+  updatePresentationProgress();
+
+  presentationVideo.play().catch(() => {
+    updatePresentationToggle();
+  });
+}
+
+function togglePresentationPlayback() {
+  if (!presentationVideo) {
+    return;
+  }
+
+  if (presentationVideo.ended) {
+    replayPresentationVideo();
+    return;
+  }
+
+  if (presentationVideo.paused) {
+    setPresentationEnded(false);
+    presentationVideo.play().catch(() => {
+      updatePresentationToggle();
+    });
+    return;
+  }
+
+  presentationVideo.pause();
+}
+
+if (presentationVideo && presentationToggle && presentationProgress) {
+  presentationToggle.addEventListener('click', togglePresentationPlayback);
+  presentationVideo.addEventListener('click', togglePresentationPlayback);
+
+  if (presentationReplay) {
+    presentationReplay.addEventListener('click', replayPresentationVideo);
+  }
+
+  presentationVideo.addEventListener('keydown', (event) => {
+    if (event.key === ' ' || event.key === 'Enter') {
+      event.preventDefault();
+      togglePresentationPlayback();
+    }
+  });
+
+  presentationVideo.addEventListener('play', () => {
+    setPresentationEnded(false);
+    updatePresentationToggle();
+  });
+  presentationVideo.addEventListener('pause', updatePresentationToggle);
+  presentationVideo.addEventListener('ended', () => {
+    setPresentationEnded(true);
+    updatePresentationToggle();
+    updatePresentationProgress();
+  });
+  presentationVideo.addEventListener('loadedmetadata', () => {
+    setPresentationEnded(false);
+    updatePresentationProgress();
+  });
+  presentationVideo.addEventListener('timeupdate', updatePresentationProgress);
+
+  presentationProgress.addEventListener('input', () => {
+    const duration = presentationVideo.duration;
+
+    if (!Number.isFinite(duration) || duration <= 0) {
+      return;
+    }
+
+    const nextProgress = Number(presentationProgress.value) / Number(presentationProgress.max);
+    presentationVideo.currentTime = Math.min(Math.max(nextProgress, 0), 1) * duration;
+    setPresentationEnded(false);
+    updatePresentationProgress();
+    updatePresentationToggle();
+  });
+
+  setPresentationEnded(false);
+  updatePresentationToggle();
+  updatePresentationProgress();
+}
 
 const resources = [
   {
@@ -178,4 +470,4 @@ resourceGroups.innerHTML = resources
   )
   .join('');
 
-activatePanel('thesis');
+activatePanel('thesis', { scrollToPanel: false });
